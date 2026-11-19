@@ -17,6 +17,7 @@
 ## Phase 1: Setup & Dependencies
 
 ### T001: Configure core infrastructure dependencies in pubspec.yaml
+- **Status**: [x] Completed
 - **Scope**: Add all approved third-party libraries and dev dependencies required for shared infrastructure.
 - **Dependencies**: None
 - **Expected Deliverables**:
@@ -29,6 +30,7 @@
 ## Phase 2: Common Error Abstractions & Result Handling
 
 ### T002: Implement technical exception hierarchy
+- **Status**: [x] Completed
 - **Scope**: Define standard `AppException` and concrete technical exceptions for remote, local, network, and unexpected failures.
 - **Dependencies**: T001
 - **Expected Deliverables**:
@@ -37,6 +39,7 @@
 - **Acceptance Criteria**: Exception classes conform to Dart sound null safety and include formatting representations.
 
 ### T003: Implement domain failure abstractions
+- **Status**: [x] Completed
 - **Scope**: Define domain-level `Failure` classes ensuring domain and presentation layers never import raw technical exceptions.
 - **Dependencies**: T001
 - **Expected Deliverables**:
@@ -45,6 +48,7 @@
 - **Acceptance Criteria**: Domain failures contain clean user-facing error messages and HTTP status codes when applicable.
 
 ### T004: Implement sealed Result container
+- **Status**: [x] Completed
 - **Scope**: Build a native Dart 3 sealed `Result<T>` class (`Success<T>`, `FailureResult<T>`) for functional error propagation.
 - **Dependencies**: T003
 - **Expected Deliverables**:
@@ -53,6 +57,7 @@
 - **Acceptance Criteria**: Supports Dart 3 switch expressions and exhaustive type matching without third-party monad packages.
 
 ### T005: Implement centralized ErrorHandler and unit tests
+- **Status**: [x] Completed
 - **Scope**: Build error translation utility that converts raw `DioException`, `SqliteException`, or unknown errors into domain `Failure` instances.
 - **Dependencies**: T002, T003, T004
 - **Expected Deliverables**:
@@ -66,6 +71,7 @@
 ## Phase 3: Logging Infrastructure & Sensitive Data Masking
 
 ### T006: Implement SensitiveDataMasker utility
+- **Status**: [x] Completed
 - **Scope**: Build regular-expression based data redactor for passwords, tokens, API keys, and PII.
 - **Dependencies**: T001
 - **Expected Deliverables**:
@@ -75,6 +81,7 @@
 - **Acceptance Criteria**: Sensitive substrings are replaced with `***MASKED***` without breaking JSON formatting.
 
 ### T007: Implement AppLogger service
+- **Status**: [x] Completed
 - **Scope**: Create centralized logging wrapper over `package:logger` supporting debug, info, warning, and error levels with environment filtering.
 - **Dependencies**: T006
 - **Expected Deliverables**:
@@ -88,6 +95,7 @@
 ## Phase 4: Secure Storage & Application Preferences
 
 ### T008: Implement EnvironmentConfig
+- **Status**: [x] Completed
 - **Scope**: Create compile-time environment configuration (`EnvironmentConfig`) supporting `dev`, `staging`, and `prod`.
 - **Dependencies**: T001
 - **Expected Deliverables**:
@@ -96,6 +104,7 @@
 - **Acceptance Criteria**: Exposes typed environment properties (`apiBaseUrl`, `connectTimeout`, `isProduction`).
 
 ### T009: Implement SecureStorageService
+- **Status**: [x] Completed
 - **Scope**: Create abstraction and implementation over `FlutterSecureStorage` with methods for reading, writing, and clearing tokens.
 - **Dependencies**: T002, T003
 - **Expected Deliverables**:
@@ -105,6 +114,7 @@
 - **Acceptance Criteria**: Handles null values gracefully and wraps platform errors in `CacheFailure`.
 
 ### T010: Implement PreferencesService
+- **Status**: [x] Completed
 - **Scope**: Create abstraction and implementation over `SharedPreferences` for application settings and flags.
 - **Dependencies**: T002, T003
 - **Expected Deliverables**:
@@ -118,6 +128,7 @@
 ## Phase 5: Networking Infrastructure (Dio & Interceptors)
 
 ### T011: Define ApiEndpoints and HTTP configuration constants
+- **Status**: [x] Completed
 - **Scope**: Establish centralized endpoint constants, timeout durations, and header keys.
 - **Dependencies**: T008
 - **Expected Deliverables**:
@@ -126,6 +137,7 @@
 - **Acceptance Criteria**: Endpoints are organized by service module with clean path joining.
 
 ### T012: Implement LoggingInterceptor with data masking
+- **Status**: [x] Completed
 - **Scope**: Build custom Dio interceptor logging request details, query parameters, headers, and responses with data masking.
 - **Dependencies**: T006, T007
 - **Expected Deliverables**:
@@ -135,6 +147,7 @@
 - **Acceptance Criteria**: Headers like `Authorization` and JSON fields like `password` are redacted before output.
 
 ### T013: Implement ErrorInterceptor
+- **Status**: [x] Completed
 - **Scope**: Build custom Dio interceptor that catches `DioException` and translates it into appropriate `AppException`.
 - **Dependencies**: T002, T005
 - **Expected Deliverables**:
@@ -144,6 +157,7 @@
 - **Acceptance Criteria**: Exception objects include status codes and error payloads for upstream handlers.
 
 ### T014: Implement AuthInterceptor with token refresh queue
+- **Status**: [x] Completed
 - **Scope**: Build Dio interceptor that injects Bearer token into outgoing requests and handles 401 token refresh queue.
 - **Dependencies**: T009, T013
 - **Expected Deliverables**:
@@ -153,6 +167,7 @@
 - **Acceptance Criteria**: Avoids redundant simultaneous refresh requests when multiple endpoints return 401.
 
 ### T015: Implement ApiClient
+- **Status**: [x] Completed
 - **Scope**: Configure centralized `Dio` wrapper with `BaseOptions`, interceptors, and typed HTTP methods (GET, POST, PUT, DELETE).
 - **Dependencies**: T011, T012, T013, T014
 - **Expected Deliverables**:
@@ -166,6 +181,7 @@
 ## Phase 6: Local Database Infrastructure (Drift)
 
 ### T016: Implement platform database openers
+- **Status**: [x] Completed
 - **Scope**: Implement native SQLite database connection using `sqlite3_flutter_libs` / `path_provider` and in-memory test opener.
 - **Dependencies**: T001
 - **Expected Deliverables**:
@@ -175,6 +191,7 @@
 - **Acceptance Criteria**: Supports WAL mode on device and ephemeral isolation during tests.
 
 ### T017: Implement common Drift tables and MigrationManager
+- **Status**: [x] Completed
 - **Scope**: Define baseline tables (e.g., `SyncMetadataTable`) and migration coordinator handling schema version transitions.
 - **Dependencies**: T016
 - **Expected Deliverables**:
@@ -184,6 +201,7 @@
 - **Acceptance Criteria**: Migration strategy handles `onCreate` and `onUpgrade` safely without unhandled exceptions.
 
 ### T018: Implement AppDatabase class and run code generation
+- **Status**: [x] Completed
 - **Scope**: Create primary `AppDatabase` class extending `_$AppDatabase` with table registrations and run `drift_dev` builder.
 - **Dependencies**: T017
 - **Expected Deliverables**:
@@ -193,6 +211,7 @@
 - **Acceptance Criteria**: Code generation succeeds cleanly with zero analyzer errors.
 
 ### T019: Unit test Drift database operations
+- **Status**: [x] Completed
 - **Scope**: Write comprehensive test suite for `AppDatabase` using in-memory connection.
 - **Dependencies**: T018
 - **Expected Deliverables**:
@@ -205,6 +224,7 @@
 ## Phase 7: Declarative Navigation Infrastructure (GoRouter)
 
 ### T020: Define RoutePaths and NotFoundScreen
+- **Status**: [x] Completed
 - **Scope**: Establish static route paths/names and build a user-friendly 404 / Error screen with home navigation action.
 - **Dependencies**: T001
 - **Expected Deliverables**:
@@ -214,6 +234,7 @@
 - **Acceptance Criteria**: Screen displays error description and provides button to return to home route.
 
 ### T021: Implement RouterListenable for auth/state redirect
+- **Status**: [x] Completed
 - **Scope**: Create `ChangeNotifier` bridge to allow GoRouter to re-evaluate redirect guards upon authentication state changes.
 - **Dependencies**: T020
 - **Expected Deliverables**:
@@ -222,6 +243,7 @@
 - **Acceptance Criteria**: GoRouter receives notification and triggers route re-evaluation.
 
 ### T022: Implement AppRouter and route tests
+- **Status**: [x] Completed
 - **Scope**: Configure `GoRouter` with initial route, routes list, error builder, and redirect guard logic.
 - **Dependencies**: T020, T021
 - **Expected Deliverables**:
@@ -235,6 +257,7 @@
 ## Phase 8: Dependency Injection (GetIt & Injectable)
 
 ### T023: Implement Injectable third-party modules
+- **Status**: [x] Completed
 - **Scope**: Create `@module` classes to provide `Dio`, `AppDatabase`, `FlutterSecureStorage`, and `SharedPreferences` to `GetIt`.
 - **Dependencies**: T009, T010, T015, T018
 - **Expected Deliverables**:
@@ -245,6 +268,7 @@
 - **Acceptance Criteria**: Follows `@lazySingleton` and `@singleton` lifecycle standards per Constitution Principle III.
 
 ### T024: Implement configureDependencies and run Injectable generation
+- **Status**: [x] Completed
 - **Scope**: Implement `injection.dart` configuring `GetIt` with `@InjectableInit` and execute code generation.
 - **Dependencies**: T023
 - **Expected Deliverables**:
@@ -254,6 +278,7 @@
 - **Acceptance Criteria**: DI container compiles without errors or unregistered dependency warnings.
 
 ### T025: Unit test Dependency Injection container
+- **Status**: [x] Completed
 - **Scope**: Test resolution of all core services across development and testing environments.
 - **Dependencies**: T024
 - **Expected Deliverables**:
@@ -266,6 +291,7 @@
 ## Phase 9: Shared Testing Harness & Quality Verification
 
 ### T026: Build shared testing utilities and mocks
+- **Status**: [x] Completed
 - **Scope**: Create reusable `MockDioAdapter`, `MockServices`, and test DI helper for feature module tests.
 - **Dependencies**: T015, T018, T025
 - **Expected Deliverables**:
@@ -276,6 +302,7 @@
 - **Acceptance Criteria**: Any subsequent feature test can import these helpers to mock network and storage cleanly.
 
 ### T027: Full static analysis, formatting, and test suite execution
+- **Status**: [x] Completed
 - **Scope**: Run complete test suite, formatting, and static analysis across the entire project.
 - **Dependencies**: All preceding tasks (T001-T026)
 - **Expected Deliverables**:

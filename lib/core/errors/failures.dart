@@ -1,4 +1,5 @@
-/// Base Failure class representing business logic or operational failures.
+/// Base Failure class representing domain-level error outcomes.
+/// Presentation (BLoC/UI) layers consume Failures rather than raw exceptions.
 abstract class Failure {
   final String message;
   final int? statusCode;
@@ -6,7 +7,19 @@ abstract class Failure {
   const Failure(this.message, {this.statusCode});
 
   @override
-  String toString() => '$runtimeType: $message${statusCode != null ? ' ($statusCode)' : ''}';
+  bool operator ==(Object other) =>
+      identical(this, other) ||
+      other is Failure &&
+          runtimeType == other.runtimeType &&
+          message == other.message &&
+          statusCode == other.statusCode;
+
+  @override
+  int get hashCode => Object.hash(runtimeType, message, statusCode);
+
+  @override
+  String toString() =>
+      '$runtimeType: $message${statusCode != null ? ' (Status: $statusCode)' : ''}';
 }
 
 /// Generic server or remote API failure.
@@ -21,10 +34,73 @@ class CacheFailure extends Failure {
 
 /// Network connectivity failure.
 class NetworkFailure extends Failure {
-  const NetworkFailure([super.message = 'No internet connection']);
+  const NetworkFailure([super.message = 'No internet connection. Please check your network.']);
 }
 
-/// Client-side validation failure.
+/// Request timeout failure.
+class TimeoutFailure extends Failure {
+  const TimeoutFailure([super.message = 'Request timed out. Please try again.']);
+}
+
+/// Authentication or expired session failure.
+class UnauthorizedFailure extends Failure {
+  const UnauthorizedFailure([
+    super.message = 'Session expired. Please log in again.',
+    super.statusCode = 401,
+  ]);
+}
+
+/// Permission / forbidden failure.
+class ForbiddenFailure extends Failure {
+  const ForbiddenFailure([
+    super.message = 'Access denied. You do not have permission for this action.',
+    super.statusCode = 403,
+  ]);
+}
+
+/// Resource not found failure.
+class NotFoundFailure extends Failure {
+  const NotFoundFailure([
+    super.message = 'The requested resource was not found.',
+    super.statusCode = 404,
+  ]);
+}
+
+/// Client or server-side input validation failure.
 class ValidationFailure extends Failure {
-  const ValidationFailure(super.message);
+  final Map<String, List<String>> fieldErrors;
+
+  const ValidationFailure(
+    super.message, {
+    this.fieldErrors = const {},
+    super.statusCode = 422,
+  });
+
+  @override
+  bool operator ==(Object other) =>
+      super == other &&
+      other is ValidationFailure &&
+      _mapEquals(fieldErrors, other.fieldErrors);
+
+  @override
+  int get hashCode => Object.hash(super.hashCode, fieldErrors.toString());
+
+  static bool _mapEquals(Map<String, List<String>> a, Map<String, List<String>> b) {
+    if (a.length != b.length) return false;
+    for (final key in a.keys) {
+      if (!b.containsKey(key)) return false;
+      final listA = a[key]!;
+      final listB = b[key]!;
+      if (listA.length != listB.length) return false;
+      for (int i = 0; i < listA.length; i++) {
+        if (listA[i] != listB[i]) return false;
+      }
+    }
+    return true;
+  }
+}
+
+/// Catch-all for unexpected domain failures.
+class UnexpectedFailure extends Failure {
+  const UnexpectedFailure(super.message, {super.statusCode});
 }
