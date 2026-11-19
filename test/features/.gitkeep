@@ -1,0 +1,5 @@
+# Feature tests (mirrors lib/features/)
+# test/features/<feature_name>/
+# - domain/
+# - data/
+# - presentation/

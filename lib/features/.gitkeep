@@ -1,0 +1,5 @@
+# Features directory (Feature-First Clean Architecture)
+# Each feature folder contains:
+# - domain/ (entities, repositories, usecases)
+# - data/ (models, datasources, repositories)
+# - presentation/ (controllers, widgets, screens)

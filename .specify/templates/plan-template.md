@@ -12,35 +12,28 @@
 
 ## Technical Context
 
-<!--
-  ACTION REQUIRED: Replace the content in this section with the technical details
-  for the project. The structure here is presented in advisory capacity to guide
-  the iteration process.
--->
-
-**Language/Version**: [e.g., Python 3.11, Swift 5.9, Rust 1.75 or NEEDS CLARIFICATION]
-
-**Primary Dependencies**: [e.g., FastAPI, UIKit, LLVM or NEEDS CLARIFICATION]
-
-**Storage**: [if applicable, e.g., PostgreSQL, CoreData, files or N/A]
-
-**Testing**: [e.g., pytest, XCTest, cargo test or NEEDS CLARIFICATION]
-
-**Target Platform**: [e.g., Linux server, iOS 15+, WASM or NEEDS CLARIFICATION]
-
-**Project Type**: [e.g., library/cli/web-service/mobile-app/compiler/desktop-app or NEEDS CLARIFICATION]
-
-**Performance Goals**: [domain-specific, e.g., 1000 req/s, 10k lines/sec, 60 fps or NEEDS CLARIFICATION]
-
-**Constraints**: [domain-specific, e.g., <200ms p95, <100MB memory, offline-capable or NEEDS CLARIFICATION]
-
-**Scale/Scope**: [domain-specific, e.g., 10k users, 1M LOC, 50 screens or NEEDS CLARIFICATION]
+**Language/Version**: Dart >=3.4.4 <4.0.0, Flutter SDK (FVM)
+**Primary Dependencies**: Flutter Material/Cupertino, state management (e.g., Bloc, Riverpod, or ChangeNotifier)
+**Architecture Pattern**: Feature-First Clean Architecture (`domain`, `data`, `presentation`)
+**Storage**: [if applicable, e.g., SharedPreferences, Hive, SQLite, or N/A]
+**Testing**: `flutter_test`, `package:test`, `mocktail` / `mockito`
+**Target Platform**: [e.g., iOS, Android, Web, macOS, Windows, Linux]
+**Project Type**: Flutter Application
+**Performance Goals**: 60 fps / 120 fps smooth rendering, zero UI jank, fast cold start
+**Constraints**: Sound null safety, strict linting (`analysis_options.yaml`), offline handling if required
+**Scale/Scope**: [e.g., specific screens, entities, state flows]
 
 ## Constitution Check
 
 *GATE: Must pass before Phase 0 research. Re-check after Phase 1 design.*
 
-[Gates determined based on constitution file]
+- [ ] **Spec-First**: Requirements defined in `specs/[###-feature-name]/spec.md`
+- [ ] **Clean Layered Architecture**:
+  - `domain`: Pure Dart only. Zero Flutter UI or external driver dependencies.
+  - `data`: Implements domain repository interfaces; handles data sources & DTO serialization.
+  - `presentation`: Widgets are reactive & dumb; business logic delegated to state controllers / use cases.
+- [ ] **Test Coverage Planned**: Unit tests for domain use cases & data repositories; widget tests for UI.
+- [ ] **Null Safety & Linting**: Conforms to sound null safety and zero `dart analyze` warnings.
 
 ## Project Structure
 
@@ -57,51 +50,37 @@ specs/[###-feature]/
 ```
 
 ### Source Code (repository root)
-<!--
-  ACTION REQUIRED: Replace the placeholder tree below with the concrete layout
-  for this feature. Delete unused options and expand the chosen structure with
-  real paths (e.g., apps/admin, packages/something). The delivered plan must
-  not include Option labels.
--->
 
 ```text
-# [REMOVE IF UNUSED] Option 1: Single project (DEFAULT)
-src/
-├── models/
-├── services/
-├── cli/
-└── lib/
+lib/
+├── core/                                   # Shared foundation across features
+│   ├── errors/                             # Failures & Exceptions
+│   ├── network/                            # Network client / API contracts
+│   ├── theme/                              # App colors, typography, styles
+│   └── utils/                              # Common utilities and extensions
+└── features/[feature_name]/                # Dedicated feature module
+    ├── domain/                             # PURE DART (No Flutter dependencies)
+    │   ├── entities/                       # Core domain business objects
+    │   ├── repositories/                   # Abstract repository interfaces
+    │   └── usecases/                       # Isolated business logic operations
+    ├── data/                               # DATA IMPLEMENTATION
+    │   ├── datasources/                    # Remote API and/or Local database sources
+    │   ├── models/                         # DTOs with fromJson/toJson mappings
+    │   └── repositories/                   # Concrete repository implementations
+    └── presentation/                       # FLUTTER UI & STATE
+        ├── controllers/                    # State management (Bloc/Notifier/Cubit)
+        ├── widgets/                        # Feature-specific reusable UI components
+        └── screens/                        # Full-screen page widgets / routes
 
-tests/
-├── contract/
-├── integration/
-└── unit/
-
-# [REMOVE IF UNUSED] Option 2: Web application (when "frontend" + "backend" detected)
-backend/
-├── src/
-│   ├── models/
-│   ├── services/
-│   └── api/
-└── tests/
-
-frontend/
-├── src/
-│   ├── components/
-│   ├── pages/
-│   └── services/
-└── tests/
-
-# [REMOVE IF UNUSED] Option 3: Mobile + API (when "iOS/Android" detected)
-api/
-└── [same as backend above]
-
-ios/ or android/
-└── [platform-specific structure: feature modules, UI flows, platform tests]
+test/
+├── core/                                   # Core unit & utility tests
+└── features/[feature_name]/                # Mirrors lib/features/[feature_name]/
+    ├── domain/                             # Unit tests for use cases & entity logic
+    ├── data/                               # Unit tests for data sources & repositories
+    └── presentation/                       # Widget & state controller tests
 ```
 
-**Structure Decision**: [Document the selected structure and reference the real
-directories captured above]
+**Structure Decision**: Feature-First Clean Architecture in `lib/features/[feature_name]/` with separate `domain`, `data`, and `presentation` layers, complemented by `test/features/[feature_name]/`.
 
 ## Complexity Tracking
 
@@ -109,5 +88,4 @@ directories captured above]
 
 | Violation | Why Needed | Simpler Alternative Rejected Because |
 |-----------|------------|-------------------------------------|
-| [e.g., 4th project] | [current need] | [why 3 projects insufficient] |
-| [e.g., Repository pattern] | [specific problem] | [why direct DB access insufficient] |
+| [e.g., Direct DB access from UI] | [Reason] | [Why Clean Architecture bypassed] |

@@ -21,10 +21,12 @@ description: "Task list template for feature implementation"
 
 ## Path Conventions
 
-- **Single project**: `src/`, `tests/` at repository root
-- **Web app**: `backend/src/`, `frontend/src/`
-- **Mobile**: `api/src/`, `ios/src/` or `android/src/`
-- Paths shown below assume single project - adjust based on plan.md structure
+- **Feature-First Clean Architecture (Flutter)**:
+  - **Domain (Pure Dart)**: `lib/features/[feature]/domain/{entities,repositories,usecases}/`
+  - **Data (Implementation)**: `lib/features/[feature]/data/{models,datasources,repositories}/`
+  - **Presentation (UI & State)**: `lib/features/[feature]/presentation/{controllers,widgets,screens}/`
+  - **Core (Shared Foundation)**: `lib/core/{errors,network,theme,utils}/`
+  - **Tests**: `test/features/[feature]/{domain,data,presentation}/` and `test/core/`
 
 <!--
   ============================================================================
@@ -82,19 +84,23 @@ Examples of foundational tasks (adjust based on your project):
 
 ### Tests for User Story 1 (OPTIONAL - only if tests requested) ⚠️
 
-> **NOTE: Write these tests FIRST, ensure they FAIL before implementation**
+> **NOTE: Write tests first for domain logic and data repositories, ensure they FAIL before implementation**
 
-- [ ] T010 [P] [US1] Contract test for [endpoint] in tests/contract/test_[name].py
-- [ ] T011 [P] [US1] Integration test for [user journey] in tests/integration/test_[name].py
+- [ ] T010 [P] [US1] Unit test for [UseCase] in test/features/[feature]/domain/usecases/[usecase]_test.dart
+- [ ] T011 [P] [US1] Unit test for [RepositoryImpl] with mocks in test/features/[feature]/data/repositories/[repository]_impl_test.dart
+- [ ] T012 [P] [US1] Widget test for [Screen/Widget] in test/features/[feature]/presentation/widgets/[widget]_test.dart
 
-### Implementation for User Story 1
+### Implementation for User Story 1 (Clean Architecture: Domain ➔ Data ➔ Presentation)
 
-- [ ] T012 [P] [US1] Create [Entity1] model in src/models/[entity1].py
-- [ ] T013 [P] [US1] Create [Entity2] model in src/models/[entity2].py
-- [ ] T014 [US1] Implement [Service] in src/services/[service].py (depends on T012, T013)
-- [ ] T015 [US1] Implement [endpoint/feature] in src/[location]/[file].py
-- [ ] T016 [US1] Add validation and error handling
-- [ ] T017 [US1] Add logging for user story 1 operations
+- [ ] T013 [P] [US1] Define [Entity] in lib/features/[feature]/domain/entities/[entity].dart
+- [ ] T014 [P] [US1] Define [Repository] contract in lib/features/[feature]/domain/repositories/[repository].dart
+- [ ] T015 [US1] Implement [UseCase] in lib/features/[feature]/domain/usecases/[usecase].dart (depends on T013, T014)
+- [ ] T016 [P] [US1] Create [Model] DTO with JSON serialization in lib/features/[feature]/data/models/[model].dart
+- [ ] T017 [US1] Implement [Remote/Local DataSource] in lib/features/[feature]/data/datasources/[datasource].dart
+- [ ] T018 [US1] Implement [RepositoryImpl] in lib/features/[feature]/data/repositories/[repository]_impl.dart (depends on T014, T016, T017)
+- [ ] T019 [US1] Implement [StateController/Notifier] in lib/features/[feature]/presentation/controllers/[controller].dart
+- [ ] T020 [US1] Build [Screen/Widget] in lib/features/[feature]/presentation/screens/[screen].dart (depends on T019)
+- [ ] T021 [US1] Wire dependency injection and routing
 
 **Checkpoint**: At this point, User Story 1 should be fully functional and testable independently
 
