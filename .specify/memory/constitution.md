@@ -1,57 +1,62 @@
 <!--
 Sync Impact Report:
-- Version change: Initial Draft -> 1.0.0
-- Ratification: 2026-11-19
-- Defined Core Principles for Flutter Spec-Driven Development (SDD)
-- Added Architectural Constraints & Code Quality Gates
-- Configured Development Workflow & Governance rules
+- Version change: 1.0.0 -> 2.0.0 (Major amendment for LifeHub architecture)
+- Ratification / Last Amended: 2026-11-19
+- Standardized State Management on flutter_bloc / Cubit
+- Standardized Dependency Injection on GetIt + Injectable
+- Standardized Local Persistence on Drift (relational) + FlutterSecureStorage + SharedPreferences
+- Standardized Networking on Dio + Interceptors + Unified Error Mapping
+- Standardized Navigation on GoRouter
+- Codified strict logging, privacy/masking, and testing gates
 -->
 
-# Flutter Boilerplate SDD Constitution
+# LifeHub Constitution
 
 ## Core Principles
 
-### I. Spec-First & Feature Isolation
-Every new capability, substantial refactoring, or bugfix must be anchored by a specification in `specs/<feature-number>-<feature-name>/`. Implementation never precedes approved requirements (`spec.md`), technical architecture (`plan.md`), and atomic tasks (`tasks.md`). Features must remain decoupled, modular, and self-contained.
+### I. Spec-First & Feature-First Clean Architecture
+Every feature or shared subsystem must be anchored by a specification in `specs/<feature-number>-<feature-name>/`. Implementation never precedes approved requirements (`spec.md`), technical architecture (`plan.md`), and atomic tasks (`tasks.md`).
+- Code must reside in `lib/core/` for cross-cutting infrastructure or `lib/features/<feature_name>/` for business capabilities.
+- Strict Clean Architecture layer separation is non-negotiable:
+  - **Domain (`domain/`)**: Pure Dart entities, use cases, and repository interfaces. No Flutter UI, network, or database dependencies.
+  - **Data (`data/`)**: Concrete data sources, DTO models (JSON/Drift), and repository implementations.
+  - **Presentation (`presentation/`)**: BLoC/Cubit controllers, UI widgets, and screens. UI widgets are dumb and reactive.
 
-### II. Clean Layered Architecture
-Code must strictly adhere to the layered separation of concerns:
-- **Presentation Layer (`lib/features/.../presentation` or `lib/ui`)**: Flutter widgets and page layouts. Widgets must be dumb, reactive, and free of direct API, database, or heavy domain logic.
-- **Application / State Layer (`lib/features/.../state` or `logic`)**: State management and orchestration. Coordinates presentation with business logic.
-- **Domain Layer (`lib/features/.../domain`)**: Entities, value objects, and repository interfaces. Pure Dart with no Flutter UI dependencies.
-- **Data Layer (`lib/features/.../data`)**: Concrete data sources, HTTP clients, local storage, and DTOs/serialization.
+### II. State Management with BLoC / Cubit
+- All complex asynchronous state flows and business events must be managed using BLoC or Cubit (`flutter_bloc`).
+- Presentation widgets must never mutate state or call repositories directly; they dispatch events or trigger Cubit methods.
+- States and events must be immutable (using value equality).
 
-### III. Test-First & Non-Negotiable Quality Gates
-Quality is enforced before code merges:
-- Business logic, repositories, and state managers must have unit test coverage using `package:test` or `package:flutter_test`.
-- Reusable UI components and critical screens must have widget tests verifying rendering, user interactions, and error states.
-- Code must pass `dart analyze` with zero warnings and zero errors.
+### III. Dependency Injection & Service Lifecycle (GetIt + Injectable)
+- All services, repositories, data sources, and BLoCs must be registered and resolved through `GetIt` with code-generation support via `injectable`.
+- Follow strict lifecycle annotations (`@lazySingleton`, `@singleton`, `@injectable`).
+- Infrastructure code must expose test-friendly injection points (support for mock registration in testing environments).
 
-### IV. Type Safety, Null Safety & API Contracts
-- Sound null safety is strictly enforced across the codebase; avoiding unsafe force-unwraps (`!`) unless proven invariant by preceding assertions.
-- External data models (JSON, network, persistence) must implement validated serialization (`fromJson` / `toJson`).
+### IV. Centralized Networking & Error Handling (Dio)
+- All HTTP communication must pass through a centralized, configured `Dio` client.
+- Required interceptors: Logging (with sensitive data masking), Authentication/Token refresh, and Unified Error Interceptor.
+- Errors must be mapped at the data boundary into domain-level `Failure` objects (e.g., `ServerFailure`, `NetworkFailure`, `UnauthorizedFailure`) rather than leaking raw exceptions to the UI.
 
-### V. Cross-Platform Responsiveness & Accessibility (a11y)
-- Layouts must adapt gracefully across screen dimensions using responsive patterns (`LayoutBuilder`, flexible layouts, or breakpoints).
-- Visual elements, buttons, inputs, and touch targets must meet accessibility standards (sufficient contrast, semantic labels, minimum tap target sizing).
+### V. Local Storage, Abstraction & Data Privacy (Drift & Secure Storage)
+- Structured relational persistence must use `Drift` with explicit migration infrastructure and table definitions.
+- Sensitive credentials (tokens, keys, secrets) must use `flutter_secure_storage`. General app flags must use `shared_preferences`.
+- Drift database access must always be abstracted behind data sources and repository interfaces. Domain layers must never directly import Drift tables or query builders.
 
-## Quality Gates & Tooling
+### VI. Declarative Routing & Error Handling (GoRouter)
+- Navigation must be implemented via `GoRouter` with centralized route definitions and route-level error handling.
+- Feature routes must be modularized and extendable without modifying the core navigation router internals unnecessarily.
 
-1. **Static Analysis**: `flutter analyze` or `dart analyze` must run cleanly without warnings or errors.
-2. **Formatting**: Code must strictly conform to `dart format`.
-3. **Execution Verification**: All automated tests (`flutter test`) must pass before feature completion.
-4. **Git Branching**: Features should be developed in dedicated branches matching `specs/<feature-id>-<short-name>`.
+### VII. Observability, Logging & Sensitive Data Masking
+- Centralized logging must distinguish between development (verbose) and production (filtered/error-only).
+- Sensitive user information (passwords, tokens, PII) must be masked in log statements and HTTP request/response interceptors.
 
-## Development Workflow
-
-1. **Specify (`/speckit-specify`)**: Define natural language requirements, user stories, acceptance criteria, and constraints.
-2. **Clarify & Checklist (`/speckit-clarify`, `/speckit-checklist`)**: De-risk ambiguities and generate quality checklists.
-3. **Plan (`/speckit-plan`)**: Map out architectural changes, data contracts, dependencies, and file layout.
-4. **Tasks (`/speckit-tasks`)**: Break down implementation into granular, sequential checklist tasks.
-5. **Implement & Converge (`/speckit-implement`, `/speckit-converge`)**: Execute tasks iteratively, write tests, verify regressions, and reconcile remaining delta work.
+### VIII. Non-Negotiable Testing & Quality Gates
+- Every domain use case and repository implementation must have unit tests.
+- Infrastructure components (networking interceptors, database migrations, storage abstractions) must have dedicated test suites.
+- Code must pass `dart analyze` with zero warnings and zero errors, and conform to `dart format`.
 
 ## Governance
 
-This Constitution represents the non-negotiable architectural contract for this project. All pull requests, code reviews, and automated agent workflows must verify compliance against these principles. Any amendments to this constitution require documentation, justification, and version incrementing following semantic versioning.
+This Constitution represents the non-negotiable architectural contract for LifeHub. All pull requests, code reviews, and automated agent workflows must verify compliance against these principles. Any amendments to this constitution require documentation, justification, and version incrementing following semantic versioning.
 
-**Version**: 1.0.0 | **Ratified**: 2026-11-19 | **Last Amended**: 2026-11-19
+**Version**: 2.0.0 | **Ratified**: 2026-11-19 | **Last Amended**: 2026-11-19
