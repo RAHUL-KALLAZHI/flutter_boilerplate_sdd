@@ -3,6 +3,20 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:flutter_boilerplate_sdd/core/errors/exceptions.dart';
 import 'package:flutter_boilerplate_sdd/core/network/interceptors/error_interceptor.dart';
 
+class TestErrorHandler extends ErrorInterceptorHandler {
+  DioException? capturedError;
+
+  @override
+  void next(DioException err) {
+    capturedError = err;
+  }
+
+  @override
+  void reject(DioException err, [bool callNext = false]) {
+    capturedError = err;
+  }
+}
+
 void main() {
   group('ErrorInterceptor', () {
     late ErrorInterceptor interceptor;
@@ -22,16 +36,11 @@ void main() {
         ),
       );
 
-      final handler = ErrorInterceptorHandler();
-      DioException? captured;
-      handler.future.catchError((e) {
-        if (e is DioException) captured = e;
-      });
-
+      final handler = TestErrorHandler();
       interceptor.onError(err, handler);
 
-      expect(captured?.error, isA<UnauthorizedException>());
-      expect((captured?.error as UnauthorizedException).message, equals('Session expired'));
+      expect(handler.capturedError?.error, isA<UnauthorizedException>());
+      expect((handler.capturedError?.error as UnauthorizedException).message, equals('Session expired'));
     });
 
     test('transforms 422 HTTP error to ValidationException with field errors', () {
@@ -50,16 +59,11 @@ void main() {
         ),
       );
 
-      final handler = ErrorInterceptorHandler();
-      DioException? captured;
-      handler.future.catchError((e) {
-        if (e is DioException) captured = e;
-      });
-
+      final handler = TestErrorHandler();
       interceptor.onError(err, handler);
 
-      expect(captured?.error, isA<ValidationException>());
-      final validation = captured?.error as ValidationException;
+      expect(handler.capturedError?.error, isA<ValidationException>());
+      final validation = handler.capturedError?.error as ValidationException;
       expect(validation.fieldErrors['email'], contains('Must be a valid email'));
     });
 
@@ -70,15 +74,10 @@ void main() {
         type: DioExceptionType.connectionTimeout,
       );
 
-      final handler = ErrorInterceptorHandler();
-      DioException? captured;
-      handler.future.catchError((e) {
-        if (e is DioException) captured = e;
-      });
-
+      final handler = TestErrorHandler();
       interceptor.onError(err, handler);
 
-      expect(captured?.error, isA<RequestTimeoutException>());
+      expect(handler.capturedError?.error, isA<RequestTimeoutException>());
     });
   });
 }

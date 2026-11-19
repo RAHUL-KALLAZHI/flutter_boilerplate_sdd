@@ -47,7 +47,7 @@ sealed class Result<T> {
   }) =>
       switch (this) {
         Success(:final data) => success(data),
-        FailureResult(:final failure: final f) => failure(f),
+        FailureResult(failure: final f) => failure(f),
       };
 
   /// Transform the data using [transform] if successful, preserving failure otherwise.

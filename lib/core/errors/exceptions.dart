@@ -69,30 +69,42 @@ class RequestTimeoutException extends AppException {
 class UnauthorizedException extends AppException {
   const UnauthorizedException([
     super.message = 'Session expired or unauthorized. Please log in again.',
-    super.statusCode = 401,
-    super.errorPayload,
-    super.stackTrace,
-  ]);
+    int? statusCode = 401,
+    dynamic errorPayload,
+    StackTrace? stackTrace,
+  ]) : super(
+          statusCode: statusCode,
+          errorPayload: errorPayload,
+          stackTrace: stackTrace,
+        );
 }
 
 /// Thrown when the server responds with 403 Forbidden.
 class ForbiddenException extends AppException {
   const ForbiddenException([
     super.message = 'Access denied. You do not have permission for this resource.',
-    super.statusCode = 403,
-    super.errorPayload,
-    super.stackTrace,
-  ]);
+    int? statusCode = 403,
+    dynamic errorPayload,
+    StackTrace? stackTrace,
+  ]) : super(
+          statusCode: statusCode,
+          errorPayload: errorPayload,
+          stackTrace: stackTrace,
+        );
 }
 
 /// Thrown when a requested resource is not found (404).
 class NotFoundException extends AppException {
   const NotFoundException([
     super.message = 'The requested resource was not found.',
-    super.statusCode = 404,
-    super.errorPayload,
-    super.stackTrace,
-  ]);
+    int? statusCode = 404,
+    dynamic errorPayload,
+    StackTrace? stackTrace,
+  ]) : super(
+          statusCode: statusCode,
+          errorPayload: errorPayload,
+          stackTrace: stackTrace,
+        );
 }
 
 /// Thrown when client or API payload validation fails.

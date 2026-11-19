@@ -6,6 +6,15 @@ import 'package:flutter_boilerplate_sdd/core/storage/secure_storage_service.dart
 
 class MockSecureStorageService extends Mock implements ISecureStorageService {}
 
+class TestRequestHandler extends RequestInterceptorHandler {
+  RequestOptions? capturedOptions;
+
+  @override
+  void next(RequestOptions requestOptions) {
+    capturedOptions = requestOptions;
+  }
+}
+
 void main() {
   group('AuthInterceptor', () {
     late MockSecureStorageService mockStorage;
@@ -21,14 +30,11 @@ void main() {
           .thenAnswer((_) async => 'valid_token_123');
 
       final options = RequestOptions(path: '/profile');
-      final handler = RequestInterceptorHandler();
-
-      RequestOptions? intercepted;
-      handler.future.then((opt) => intercepted = opt as RequestOptions);
+      final handler = TestRequestHandler();
 
       await interceptor.onRequest(options, handler);
 
-      expect(intercepted?.headers['Authorization'], equals('Bearer valid_token_123'));
+      expect(handler.capturedOptions?.headers['Authorization'], equals('Bearer valid_token_123'));
     });
 
     test('does not attach header when requiresAuth is false', () async {
@@ -36,14 +42,11 @@ void main() {
         path: '/public',
         extra: {AuthInterceptor.extraRequiresAuth: false},
       );
-      final handler = RequestInterceptorHandler();
-
-      RequestOptions? intercepted;
-      handler.future.then((opt) => intercepted = opt as RequestOptions);
+      final handler = TestRequestHandler();
 
       await interceptor.onRequest(options, handler);
 
-      expect(intercepted?.headers.containsKey('Authorization'), isFalse);
+      expect(handler.capturedOptions?.headers.containsKey('Authorization'), isFalse);
       verifyNever(() => mockStorage.getAccessToken());
     });
   });

@@ -46,24 +46,24 @@ class TimeoutFailure extends Failure {
 class UnauthorizedFailure extends Failure {
   const UnauthorizedFailure([
     super.message = 'Session expired. Please log in again.',
-    super.statusCode = 401,
-  ]);
+    int? statusCode = 401,
+  ]) : super(statusCode: statusCode);
 }
 
 /// Permission / forbidden failure.
 class ForbiddenFailure extends Failure {
   const ForbiddenFailure([
     super.message = 'Access denied. You do not have permission for this action.',
-    super.statusCode = 403,
-  ]);
+    int? statusCode = 403,
+  ]) : super(statusCode: statusCode);
 }
 
 /// Resource not found failure.
 class NotFoundFailure extends Failure {
   const NotFoundFailure([
     super.message = 'The requested resource was not found.',
-    super.statusCode = 404,
-  ]);
+    int? statusCode = 404,
+  ]) : super(statusCode: statusCode);
 }
 
 /// Client or server-side input validation failure.

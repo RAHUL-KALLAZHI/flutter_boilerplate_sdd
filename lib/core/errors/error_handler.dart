@@ -51,11 +51,11 @@ class ErrorHandler {
       NetworkException(:final message) => NetworkFailure(message),
       RequestTimeoutException(:final message) => TimeoutFailure(message),
       UnauthorizedException(:final message, :final statusCode) =>
-        UnauthorizedFailure(message, statusCode: statusCode),
+        UnauthorizedFailure(message, statusCode),
       ForbiddenException(:final message, :final statusCode) =>
-        ForbiddenFailure(message, statusCode: statusCode),
+        ForbiddenFailure(message, statusCode),
       NotFoundException(:final message, :final statusCode) =>
-        NotFoundFailure(message, statusCode: statusCode),
+        NotFoundFailure(message, statusCode),
       ValidationException(:final message, :final fieldErrors, :final statusCode) =>
         ValidationFailure(message, fieldErrors: fieldErrors, statusCode: statusCode),
       UnexpectedException(:final message, :final statusCode) =>
@@ -76,11 +76,11 @@ class ErrorHandler {
 
       switch (statusCode) {
         case 401:
-          return UnauthorizedFailure(message, statusCode: statusCode);
+          return UnauthorizedFailure(message, statusCode);
         case 403:
-          return ForbiddenFailure(message, statusCode: statusCode);
+          return ForbiddenFailure(message, statusCode);
         case 404:
-          return NotFoundFailure(message, statusCode: statusCode);
+          return NotFoundFailure(message, statusCode);
         case 422:
           final errors = _extractFieldErrors(response);
           return ValidationFailure(message, fieldErrors: errors, statusCode: statusCode);

@@ -52,6 +52,14 @@ class SensitiveDataMasker {
       return '${match.group(1)}$maskPlaceholder';
     });
 
+    // Mask email addresses (preserve first char and domain)
+    output = output.replaceAllMapped(_emailPattern, (match) {
+      final user = match.group(1) ?? '';
+      final domain = match.group(2) ?? '';
+      final visible = user.isNotEmpty ? user[0] : '';
+      return '$visible***@$domain';
+    });
+
     return output;
   }
 
